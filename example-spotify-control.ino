@@ -95,12 +95,12 @@ void calculateDistance() {
   USE_SERIAL.println(" cm");
   //if mail is blocking the sensor, then it'll give a huge value
   if (distance < 5.0 || distance > 1000.0) {
-    if (!mailWasNotified) {
-      updateStatus(deviceId, "ButtonOn", "1");
-      mailWasNotified = true;
+    //if (!mailWasNotified) {
+      //updateStatus(deviceId, "ButtonOn", "1");
+    //  mailWasNotified = true;
     }
   } else {
-    mailWasNotified = false;
+    //mailWasNotified = false;
   }
 }
 
@@ -152,50 +152,6 @@ void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
       break;
     case WStype_TEXT:
       USE_SERIAL.printf("[WSc] get text: %s\n", payload);
-      //14:58:50.193 -> [WSc] get text: bcb03298-2fcd-4cb3-a938-342d9b793e68,powerstate,TurnOn
-      deviceIdFromMessage = strtok((char*)payload, ",");
-      command = strtok(NULL, ",");
-      commandValue = strtok(NULL, ",");
-      USE_SERIAL.print("Command: ");
-      USE_SERIAL.println(command);
-      USE_SERIAL.print("Value: ");
-      USE_SERIAL.println(commandValue);
-      if (strcmp(command, "powerstate") == 0) {
-        if (strcmp(commandValue, "TurnOn") == 0) {
-          turnOnPump();
-        } else {
-          turnOffPump();
-        }
-      } else if (strcmp(command, "nextVersion") == 0) {
-        fileName = commandValue;
-        USE_SERIAL.println(F("Should do OTA213"));
-        doOTAUpdate();
-      } else if (strcmp(command, "debug.powerstate") == 0) {
-        if (strcmp(commandValue, "TurnOn") == 0) {
-          USE_SERIAL.println(F("Is debugging"));
-          isDebugging = true;
-          //Serial.begin(115200);
-        } else {
-          isDebugging = false;
-          //Serial.flush();
-          //delay(50);
-          //Serial.end();
-          //delay(50);
-          //dht.begin();
-        }
-      } else {
-        USE_SERIAL.println("Unknown command");
-      }
-
-      // send message to server
-      // webSocketClient.sendTXT("message here");
-      break;
-    case WStype_BIN:
-      USE_SERIAL.printf("[WSc] get binary length: %u\n", length);
-      //hexdump(payload, length);
-
-      // send data to server
-      // webSocketClient.sendBIN(payload, length);
       break;
     case WStype_PING:
       // pong will be send automatically
@@ -299,12 +255,12 @@ void setup() {
   //turnOnInternalLed();
   webSocketClient.begin(host, 80, path);
   //Telll Offbeat-IoT that you'd like to receive data in json
-  webSocketClient.setExtraHeaders("Accept", "application/json")
-    webSocketClient.setAuthorization(offbeatIotUser, offbeatIotPassword);
+  webSocketClient.setExtraHeaders("Accept=application/json");
+  webSocketClient.setAuthorization(offbeatIotUser, offbeatIotPassword);
 
   webSocketClient.onEvent(webSocketEvent);
   //reconnect after 5 seconds if disconnected
-  webSocketClient.setReconnectInterval(5000)
+  webSocketClient.setReconnectInterval(5000);
     //wait 15 seconds for pong message
     webSocketClient.enableHeartbeat(15000, 15000, 2);
   Serial.println("past connection");
