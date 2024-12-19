@@ -1,14 +1,7 @@
 // tag::imports[]
 
-//save your credentials in a file with this content and keep it in a folder in your libraries
-//#pragma once
-//const char* offbeatIotUser= "your user";
-//const char* offbeatIotPassword= "your users password";
+//Check out the documentation section on how to manage credentials like this
 #include <wifiCredentials.h>
-//save your credentials in a file with this content and keep it in a folder in your libraries
-//#pragma once
-//const char* offbeatIotUser= "your user";
-//const char* offbeatIotPassword= "your users password";
 #include <offbeatIotCredentials.h>
 //connect to Offbeat-IoT using websockets
 #include <WebSocketsClient.h>
@@ -96,12 +89,13 @@ void calculateDistance() {
   //if mail is blocking the sensor, then it'll give a huge value
   if (distance < 5.0 || distance > 1000.0) {
     //if (!mailWasNotified) {
-      //updateStatus(deviceId, "ButtonOn", "1");
+    //updateStatus(deviceId, "ButtonOn", "1");
     //  mailWasNotified = true;
-    }
-  } else {
-    //mailWasNotified = false;
   }
+}
+else {
+  //mailWasNotified = false;
+}
 }
 
 char ipaddressString[256];
@@ -261,8 +255,8 @@ void setup() {
   webSocketClient.onEvent(webSocketEvent);
   //reconnect after 5 seconds if disconnected
   webSocketClient.setReconnectInterval(5000);
-    //wait 15 seconds for pong message
-    webSocketClient.enableHeartbeat(15000, 15000, 2);
+  //wait 15 seconds for pong message
+  webSocketClient.enableHeartbeat(15000, 15000, 2);
   Serial.println("past connection");
   Serial.flush();
 
