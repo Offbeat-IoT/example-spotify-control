@@ -73,6 +73,12 @@ float measureDistance() {
   return duration * 0.034 / 2.0;  // Speed of sound wave divided by 2 (go and back)
 }
 
+void sendCommand(int){
+    // tag::determineDistance[]
+    //TODO: this is the fun part
+    // close::determineDistance[]
+}
+
 void calculateDistance() {
 
   float averageSum = 0;
@@ -86,12 +92,24 @@ void calculateDistance() {
   USE_SERIAL.print("Distance: ");
   USE_SERIAL.print(distance);
   USE_SERIAL.println(" cm");
-  //if mail is blocking the sensor, then it'll give a huge value
-  if (distance < 5.0 || distance > 1000.0) {
-    //if (!mailWasNotified) {
-    //updateStatus(deviceId, "ButtonOn", "1");
-    //  mailWasNotified = true;
-  }
+  // tag::determineDistance[]
+  //create weirdest remote control ever
+  if (distance >= 0.0 || distance < 9.99) {
+    sendCommand("next");
+  } else if (distance >= 10.0 && distance < 19.99) {
+    sendCommand("play");
+  } else if (distance >= 20.0 && distance < 29.99) {
+    sendCommand("volumeUp");
+  } else if (distance >= 30.0 && distance < 39.99) {
+    sendCommand("shuffle");
+  } else if (distance >= 40.0 && distance < 49.99) {
+    sendCommand("prev");
+  } else if (distance >= 50.0 && distance < 59.99) {
+    sendCommand("pause");
+  } else if (distance >= 60.0 && distance < 69.99) {
+    sendCommand("volumeDown");
+  } 
+  // end::determineDistance[]
 }
 else {
   //mailWasNotified = false;
@@ -128,7 +146,6 @@ void reportProperties() {
   updateStatus(deviceId, "SSID", (char*)mySSID);
 }
 
-// tag::contains[]
 void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
   char* deviceIdFromMessage;
   char* command;
@@ -144,9 +161,13 @@ void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
         reportProperties();
       }
       break;
+      // tag::websocketEvent[]
     case WStype_TEXT:
+
       USE_SERIAL.printf("[WSc] get text: %s\n", payload);
       break;
+      // end::websocketEvent[]
+
     case WStype_PING:
       // pong will be send automatically
       USE_SERIAL.println("[WSc] get ping");
@@ -162,7 +183,6 @@ void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
       break;
   }
 }
-// end::contains[]
 
 
 void printEncryptionType(int thisType) {
@@ -247,10 +267,12 @@ void setup() {
   Serial.println("Connecting to websocket");
   Serial.flush();
   //turnOnInternalLed();
-  webSocketClient.begin(host, 80, path);
-  //Telll Offbeat-IoT that you'd like to receive data in json
+  // tag::connection[]
+  webSocketClient.begin(host, 443, path);
+  //Tell Offbeat-IoT that you'd like to receive data in json format
   webSocketClient.setExtraHeaders("Accept=application/json");
   webSocketClient.setAuthorization(offbeatIotUser, offbeatIotPassword);
+  // end::connection[]
 
   webSocketClient.onEvent(webSocketEvent);
   //reconnect after 5 seconds if disconnected
