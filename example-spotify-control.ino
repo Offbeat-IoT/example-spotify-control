@@ -73,11 +73,46 @@ float measureDistance() {
   return duration * 0.034 / 2.0;  // Speed of sound wave divided by 2 (go and back)
 }
 
-void sendCommand(int){
-    // tag::determineDistance[]
-    //TODO: this is the fun part
-    // close::determineDistance[]
+// tag::sendCommand[]
+bool shuffleEnabled = false;
+int spotifyVolume = 25;
+
+void sendCommand(const char* command) {
+  if (!webSocketClient.isConnected()) {
+    USE_SERIAL.println(F("Not connected when sending spotify command"));
+    return;
+  }
+
+  char message[96];
+
+  if (strcmp(command, "next") == 0) {
+    strcpy(message, "{\"spotify.next\":\"\"}");
+  } else if (strcmp(command, "prev") == 0) {
+    strcpy(message, "{\"spotify.previous\":\"\"}");
+  } else if (strcmp(command, "play") == 0) {
+    strcpy(message, "{\"spotify.play\":\"\"}");
+  } else if (strcmp(command, "pause") == 0) {
+    strcpy(message, "{\"spotify.pause\":\"\"}");
+  } else if (strcmp(command, "shuffle") == 0) {
+    shuffleEnabled = !shuffleEnabled;
+    snprintf(message, sizeof(message), "{\"spotify.shuffle\":\"%s\"}", shuffleEnabled ? "on" : "Off");
+  } else if (strcmp(command, "volumeUp") == 0) {
+    spotifyVolume = min(100, spotifyVolume + 5);
+    snprintf(message, sizeof(message), "{\"spotify.volume\":\"%d\"}", spotifyVolume);
+  } else if (strcmp(command, "volumeDown") == 0) {
+    spotifyVolume = max(0, spotifyVolume - 5);
+    snprintf(message, sizeof(message), "{\"spotify.volume\":\"%d\"}", spotifyVolume);
+  } else {
+    USE_SERIAL.print(F("Unknown spotify command: "));
+    USE_SERIAL.println(command);
+    return;
+  }
+
+  USE_SERIAL.print(F("Sending: "));
+  USE_SERIAL.println(message);
+  webSocketClient.sendTXT(message);
 }
+// end::sendCommand[]
 
 void calculateDistance() {
 
@@ -94,7 +129,7 @@ void calculateDistance() {
   USE_SERIAL.println(" cm");
   // tag::determineDistance[]
   //create weirdest remote control ever
-  if (distance >= 0.0 || distance < 9.99) {
+  if (distance >= 0.0 && distance < 9.99) {
     sendCommand("next");
   } else if (distance >= 10.0 && distance < 19.99) {
     sendCommand("play");
@@ -108,12 +143,8 @@ void calculateDistance() {
     sendCommand("pause");
   } else if (distance >= 60.0 && distance < 69.99) {
     sendCommand("volumeDown");
-  } 
+  }
   // end::determineDistance[]
-}
-else {
-  //mailWasNotified = false;
-}
 }
 
 char ipaddressString[256];
