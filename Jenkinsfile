@@ -1,4 +1,3 @@
-@
 @Library("shared-jenkins-pipelines") _
 
 platformioPipeline('offbeatCredentialsId': "offbeatCredentialsId"
