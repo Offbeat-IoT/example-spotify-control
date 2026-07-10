@@ -1,9 +1,18 @@
 import os
+import sys
 import subprocess
 from pathlib import Path
 Import("env")
 
 project_dir = Path(env.subst("PROJECT_DIR"))
+
+def ensure_python_dependency(module_name, pip_name=None):
+    try:
+        __import__(module_name)
+        return
+    except ImportError:
+        package = pip_name or module_name
+        subprocess.run([sys.executable, "-m", "pip", "install", package], check=True)
 
 def get_git_short_hash():
     try:
@@ -13,8 +22,11 @@ def get_git_short_hash():
         return "unknown"
 
 def ensure_libdeps_dir():
-    # Jenkins size analysis expects the env libdeps directory to exist even when no external libs are used.
     (project_dir / ".pio" / "libdeps" / env["PIOENV"]).mkdir(parents=True, exist_ok=True)
+
+def ensure_platform_prerequisites():
+    if env.get("PIOPLATFORM") == "espressif32":
+        ensure_python_dependency("intelhex")
 
 def generate_version_header():
     git_hash = get_git_short_hash()
@@ -48,6 +60,7 @@ def copy_publish_bin(target, source, env):
     shutil.copy2(str(bin_path), str(publish_dir / f"{env['PIOENV']}.bin"))
 
 ensure_libdeps_dir()
+ensure_platform_prerequisites()
 generate_version_header()
 add_framework_flags(env)
 env.AddPostAction("BUILD_DIR/{PROGNAME}.bin", copy_publish_bin)
