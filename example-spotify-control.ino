@@ -1,8 +1,8 @@
 // tag::imports[]
 
 //Check out the documentation section on how to manage credentials like this
-#include <wifiCredentials.h>
-#include <offbeatIotCredentials.h>
+#include "wifiCredentials.h"
+#include "offbeatIotCredentials.h"
 //connect to Offbeat-IoT using websockets
 #include <WebSocketsClient.h>
 //using a timer to synchronize with spotify
