@@ -1,0 +1,10 @@
+version.h
+build
+.pio
+credentials.h
+include/credentials.h
+include/version.h
+src/version.h
+arduino-build
+arduino-sketch
+output.map.playwright-mcp/
