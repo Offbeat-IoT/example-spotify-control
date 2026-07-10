@@ -49,7 +49,7 @@ def add_framework_flags(env):
         if fw_dir:
             fw_libs = os.path.join(fw_dir, "libraries")
             if os.path.isdir(fw_libs):
-                env.Append(CPPPATH=[os.path.join(fw_libs, d) for d in os.listdir(fw_libs) if os.path.isdir(os.path.join(fw_libs, d))])
+                env.Append(CPPPATH=[os.path.join(fw_libs, d, "src") for d in os.listdir(fw_libs) if os.path.isdir(os.path.join(fw_libs, d, "src"))])
             break
 
 def copy_publish_bin(target, source, env):
