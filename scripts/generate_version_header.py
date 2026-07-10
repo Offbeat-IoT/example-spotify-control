@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 Import("env")
 
-project_dir = Path(env.subst(""))
+project_dir = Path(env.subst("PROJECT_DIR"))
 
 def get_git_short_hash():
     try:
@@ -11,6 +11,10 @@ def get_git_short_hash():
         return result.stdout.strip() if result.returncode == 0 else "unknown"
     except Exception:
         return "unknown"
+
+def ensure_libdeps_dir():
+    # Jenkins size analysis expects the env libdeps directory to exist even when no external libs are used.
+    (project_dir / ".pio" / "libdeps" / env["PIOENV"]).mkdir(parents=True, exist_ok=True)
 
 def generate_version_header():
     git_hash = get_git_short_hash()
@@ -37,12 +41,13 @@ def add_framework_flags(env):
             break
 
 def copy_publish_bin(target, source, env):
-    bin_path = Path(env.subst("/.bin"))
+    bin_path = Path(env.subst("BUILD_DIR/{PROGNAME}.bin"))
     publish_dir = project_dir / ".pio" / "build" / "publish"
     publish_dir.mkdir(parents=True, exist_ok=True)
     import shutil
     shutil.copy2(str(bin_path), str(publish_dir / f"{env['PIOENV']}.bin"))
 
+ensure_libdeps_dir()
 generate_version_header()
 add_framework_flags(env)
-env.AddPostAction("/.bin", copy_publish_bin)
+env.AddPostAction("BUILD_DIR/{PROGNAME}.bin", copy_publish_bin)
