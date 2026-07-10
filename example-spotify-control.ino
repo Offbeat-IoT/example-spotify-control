@@ -3,7 +3,9 @@
 //Check out the documentation section on how to manage credentials like this
 #include "wifiCredentials.h"
 #include "offbeatIotCredentials.h"
-#include <ESP8266WiFi.h>`n#include <WiFiClientSecureBearSSL.h>`n//connect to Offbeat-IoT using websockets
+#include <ESP8266WiFi.h>
+#include <WiFiClientSecureBearSSL.h>
+//connect to Offbeat-IoT using websockets
 #include <WebSocketsClient.h>
 //using a timer to synchronize with spotify
 #include <SimpleTimer.h>
